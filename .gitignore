@@ -1,0 +1,42 @@
+# Python
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+.eggs/
+dist/
+build/
+
+# Env and secrets
+.env
+.env.local
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Test and coverage
+.pytest_cache/
+.coverage
+htmlcov/
+*.db
+test.db
+
+# Ruff
+.ruff_cache/
+
+# SAM / AWS
+.aws-sam/
+samconfig.toml
+
+# Docs (gitignored per plan)
+developer_readme.md
+docs/guide/aws_setup_guide.md
+docs/guide/local_dev.md
+docs/guide/prod.md
