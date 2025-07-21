@@ -1,1 +1,5 @@
-# placeholder - filled in step 7
+from fastapi import APIRouter
+
+router = APIRouter()
+
+# Endpoints added in step 7
