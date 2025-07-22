@@ -65,6 +65,16 @@ def query_links_by_user(user_id: str, limit: int = 20, last_evaluated_key: dict 
     return items, next_key
 
 
+def count_links_by_user(user_id: str) -> int:
+    table = get_table()
+    resp = table.query(
+        IndexName="user_id-index",
+        KeyConditionExpression=Key("user_id").eq(user_id),
+        Select="COUNT",
+    )
+    return resp.get("Count", 0)
+
+
 def increment_click_count(short_code: str) -> None:
     table = get_table()
     table.update_item(
