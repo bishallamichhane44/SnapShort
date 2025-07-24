@@ -6,8 +6,8 @@ from fastapi import APIRouter, BackgroundTasks, HTTPException, Request, status
 from fastapi.responses import RedirectResponse
 
 from app.db import dynamo as dynamo_db
+from app.db import postgres as postgres_module
 from app.services.analytics_service import record_click
-from app.db.postgres import SessionLocal
 
 router = APIRouter()
 
@@ -34,7 +34,7 @@ def redirect(
     user_agent = request.headers.get("user-agent")[:512] if request.headers.get("user-agent") else None
 
     def run_record():
-        db = SessionLocal()
+        db = postgres_module.SessionLocal()
         try:
             record_click(db, short_code, UUID(user_id) if user_id else None, ip_hash, user_agent)
         finally:
