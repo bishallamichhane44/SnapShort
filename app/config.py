@@ -9,7 +9,7 @@ class Settings(BaseSettings):
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 43200  # 30 days
 
-    DATABASE_URL: str = "postgresql://snaplink_user:snaplink_pass@localhost:5432/snapshort"
+    DATABASE_URL: str = "postgresql://snapshort_user:snapshort_pass@localhost:5432/snapshort"
 
     AWS_REGION: str = "us-east-1"
     DYNAMODB_TABLE_NAME: str = "snapshort-links"

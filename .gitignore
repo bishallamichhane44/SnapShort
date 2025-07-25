@@ -37,6 +37,4 @@ samconfig.toml
 
 # Docs (gitignored per plan)
 developer_readme.md
-docs/guide/aws_setup_guide.md
-docs/guide/local_dev.md
-docs/guide/prod.md
+docs/guide/
