@@ -1,1 +1,86 @@
-# placeholder - filled in step 9
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: SnapShort - Serverless URL Shortener
+
+Globals:
+  Function:
+    Timeout: 30
+    MemorySize: 256
+    Runtime: python3.12
+    Environment:
+      Variables:
+        APP_ENV: production
+        SECRET_KEY: !Ref SecretKey
+        DATABASE_URL: !Ref DatabaseUrl
+        DYNAMODB_TABLE_NAME: !Ref LinksTable
+        AWS_REGION: !Ref AWS::Region
+        BASE_URL: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/"
+
+Parameters:
+  SecretKey:
+    Type: String
+    NoEcho: true
+  DatabaseUrl:
+    Type: String
+    NoEcho: true
+
+Resources:
+  SnapShortFunction:
+    Type: AWS::Serverless::Function
+    Metadata:
+      BuildMethod: python3.12
+    Properties:
+      FunctionName: snapshort-api
+      CodeUri: .
+      Handler: app.main.handler
+      Description: SnapShort URL Shortener API
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref LinksTable
+      Events:
+        ApiRoot:
+          Type: Api
+          Properties:
+            Path: /
+            Method: ANY
+        ApiProxy:
+          Type: Api
+          Properties:
+            Path: /{proxy+}
+            Method: ANY
+
+  LinksTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: snapshort-links
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: short_code
+          AttributeType: S
+        - AttributeName: user_id
+          AttributeType: S
+        - AttributeName: created_at
+          AttributeType: S
+      KeySchema:
+        - AttributeName: short_code
+          KeyType: HASH
+      GlobalSecondaryIndexes:
+        - IndexName: user_id-index
+          KeySchema:
+            - AttributeName: user_id
+              KeyType: HASH
+            - AttributeName: created_at
+              KeyType: RANGE
+          Projection:
+            ProjectionType: ALL
+      TimeToLiveSpecification:
+        AttributeName: expires_at
+        Enabled: true
+
+Outputs:
+  SnapShortApi:
+    Description: API Gateway endpoint URL
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/"
+  SnapShortFunctionArn:
+    Description: Lambda Function ARN
+    Value: !GetAtt SnapShortFunction.Arn
