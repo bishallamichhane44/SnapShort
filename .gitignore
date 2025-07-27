@@ -34,6 +34,7 @@ test.db
 # SAM / AWS
 .aws-sam/
 samconfig.toml
+params.json
 
 # Docs (gitignored per plan)
 developer_readme.md

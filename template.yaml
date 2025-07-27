@@ -13,8 +13,6 @@ Globals:
         SECRET_KEY: !Ref SecretKey
         DATABASE_URL: !Ref DatabaseUrl
         DYNAMODB_TABLE_NAME: !Ref LinksTable
-        AWS_REGION: !Ref AWS::Region
-        BASE_URL: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/"
 
 Parameters:
   SecretKey:

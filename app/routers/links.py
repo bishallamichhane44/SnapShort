@@ -2,7 +2,7 @@ import re
 import time
 from datetime import datetime
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Request, status
 
 from app.config import settings
 from app.dependencies import get_current_user
@@ -16,8 +16,17 @@ router = APIRouter()
 CUSTOM_CODE_RE = re.compile(r"^[a-zA-Z0-9-]{3,20}$")
 
 
+def _base_url(request: Request) -> str:
+    """Use request base URL (works behind API Gateway) or fallback to settings."""
+    base = getattr(request, "base_url", None)
+    if base is not None and str(base).strip():
+        return str(base).rstrip("/")
+    return (settings.BASE_URL or "").rstrip("/")
+
+
 @router.post("", response_model=LinkResponse, status_code=status.HTTP_201_CREATED)
 def create_link(
+    request: Request,
     link_in: LinkCreate,
     current_user: User = Depends(get_current_user),
 ):
@@ -53,7 +62,7 @@ def create_link(
         expires_at=expires_at,
     )
 
-    short_url = f"{settings.BASE_URL.rstrip('/')}/{short_code}"
+    short_url = f"{_base_url(request)}/{short_code}"
     try:
         created_dt = datetime.fromisoformat(created_at.replace("Z", "+00:00"))
     except Exception:
@@ -70,6 +79,7 @@ def create_link(
 
 @router.get("", response_model=LinkListResponse)
 def list_links(
+    request: Request,
     page: int = 1,
     limit: int = 20,
     current_user: User = Depends(get_current_user),
@@ -93,7 +103,7 @@ def list_links(
         links.append(
             LinkResponse(
                 short_code=it["short_code"],
-                short_url=f"{settings.BASE_URL.rstrip('/')}/{it['short_code']}",
+                short_url=f"{_base_url(request)}/{it['short_code']}",
                 original_url=it["original_url"],
                 created_at=dt,
                 expires_at=expires_dt,

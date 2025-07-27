@@ -1,0 +1,4 @@
+{
+  "SecretKey": "your-secret-from-openssl-rand-hex-32",
+  "DatabaseUrl": "postgresql://user:pass@host/db?sslmode=require"
+}
