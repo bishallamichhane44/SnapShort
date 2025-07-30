@@ -17,11 +17,13 @@ CUSTOM_CODE_RE = re.compile(r"^[a-zA-Z0-9-]{3,20}$")
 
 
 def _base_url(request: Request) -> str:
-    """Use request base URL (works behind API Gateway) or fallback to settings."""
+    """Prefer explicit BASE_URL setting (needed for API Gateway stage prefix), fallback to request."""
+    if settings.BASE_URL:
+        return settings.BASE_URL.rstrip("/")
     base = getattr(request, "base_url", None)
     if base is not None and str(base).strip():
         return str(base).rstrip("/")
-    return (settings.BASE_URL or "").rstrip("/")
+    return ""
 
 
 @router.post("", response_model=LinkResponse, status_code=status.HTTP_201_CREATED)
@@ -99,7 +101,7 @@ def list_links(
         except Exception:
             dt = datetime.utcnow()
         expires_at_val = it.get("expires_at")
-        expires_dt = datetime.fromtimestamp(expires_at_val) if expires_at_val else None
+        expires_dt = datetime.fromtimestamp(int(expires_at_val)) if expires_at_val else None
         links.append(
             LinkResponse(
                 short_code=it["short_code"],

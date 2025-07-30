@@ -13,6 +13,7 @@ Globals:
         SECRET_KEY: !Ref SecretKey
         DATABASE_URL: !Ref DatabaseUrl
         DYNAMODB_TABLE_NAME: !Ref LinksTable
+        BASE_URL: !Ref BaseUrl
 
 Parameters:
   SecretKey:
@@ -21,6 +22,9 @@ Parameters:
   DatabaseUrl:
     Type: String
     NoEcho: true
+  BaseUrl:
+    Type: String
+    Default: ""
 
 Resources:
   SnapShortFunction:
