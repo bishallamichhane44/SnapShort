@@ -5,6 +5,7 @@ from uuid import UUID
 from fastapi import APIRouter, BackgroundTasks, HTTPException, Request, status
 from fastapi.responses import RedirectResponse
 
+from app.constants import ANONYMOUS_LINK_USER_ID
 from app.db import dynamo as dynamo_db
 from app.db import postgres as postgres_module
 from app.services.analytics_service import record_click
@@ -36,7 +37,13 @@ def redirect(
     def run_record():
         db = postgres_module.SessionLocal()
         try:
-            record_click(db, short_code, UUID(user_id) if user_id else None, ip_hash, user_agent)
+            uid = None
+            if user_id and user_id != ANONYMOUS_LINK_USER_ID:
+                try:
+                    uid = UUID(user_id)
+                except ValueError:
+                    uid = None
+            record_click(db, short_code, uid, ip_hash, user_agent)
         finally:
             db.close()
 

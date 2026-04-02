@@ -5,7 +5,8 @@ from datetime import datetime
 from fastapi import APIRouter, Depends, HTTPException, Request, status
 
 from app.config import settings
-from app.dependencies import get_current_user
+from app.constants import ANONYMOUS_LINK_USER_ID
+from app.dependencies import get_current_user, get_current_user_optional
 from app.db.models import User
 from app.db import dynamo as dynamo_db
 from app.schemas.link import LinkCreate, LinkResponse, LinkListResponse
@@ -30,9 +31,14 @@ def _base_url(request: Request) -> str:
 def create_link(
     request: Request,
     link_in: LinkCreate,
-    current_user: User = Depends(get_current_user),
+    current_user: User | None = Depends(get_current_user_optional),
 ):
     original_url = str(link_in.original_url)
+    if link_in.custom_code and current_user is None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Sign in to use a custom short code",
+        )
     if link_in.custom_code:
         if not CUSTOM_CODE_RE.match(link_in.custom_code):
             raise HTTPException(
@@ -56,10 +62,11 @@ def create_link(
         expires_at = int(time.time()) + ttl_days * 86400
 
     created_at = datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S.000Z")
+    owner_id = str(current_user.id) if current_user is not None else ANONYMOUS_LINK_USER_ID
     dynamo_db.put_link(
         short_code=short_code,
         original_url=original_url,
-        user_id=str(current_user.id),
+        user_id=owner_id,
         created_at=created_at,
         expires_at=expires_at,
     )

@@ -4,10 +4,11 @@ A serverless URL shortener with click analytics, built with FastAPI, AWS Lambda,
 
 ## Features
 
-- Create short links (random or custom code)
+- **Anyone** can shorten a URL with `POST /links` (no login; random short code only).
+- **Signed-in users** can use custom short codes, list their links, delete, and view analytics.
 - Public redirect: visit short URL → redirect to original and record click
 - User auth (register, login with JWT)
-- Per-link analytics: total clicks, last 7/30 days, recent clicks
+- Per-link analytics: total clicks, last 7/30 days, recent clicks (account owners only)
 
 ## Tech stack
 
@@ -30,7 +31,7 @@ A serverless URL shortener with click analytics, built with FastAPI, AWS Lambda,
 |--------|------|------|-------------|
 | POST | /auth/register | No | Register (email, password) |
 | POST | /auth/token | No | Login (form: username, password) → JWT |
-| POST | /links | Bearer | Create short link |
+| POST | /links | Optional | Create short link (Bearer optional; custom code requires login) |
 | GET | /links | Bearer | List my links |
 | DELETE | /links/{code} | Bearer | Delete my link |
 | GET | /{code} | No | Redirect to original URL |

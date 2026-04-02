@@ -22,9 +22,21 @@ def test_create_link_authenticated(client):
     assert data["click_count"] == 0
 
 
-def test_create_link_unauthenticated(client):
+def test_create_link_anonymous(client):
     r = client.post("/links", json={"original_url": "https://www.example.com/long"})
+    assert r.status_code == 201
+    data = r.json()
+    assert data["original_url"] == "https://www.example.com/long"
+    assert "short_code" in data
+
+
+def test_create_link_anonymous_custom_code_requires_auth(client):
+    r = client.post(
+        "/links",
+        json={"original_url": "https://example.com", "custom_code": "needlogin"},
+    )
     assert r.status_code == 401
+    assert "custom" in r.json()["detail"].lower() or "sign in" in r.json()["detail"].lower()
 
 
 def test_create_link_invalid_url(client):
@@ -62,6 +74,11 @@ def test_create_link_custom_code_collision(client):
     )
     assert r.status_code == 409
     assert "already taken" in r.json()["detail"].lower()
+
+
+def test_list_links_requires_auth(client):
+    r = client.get("/links")
+    assert r.status_code == 401
 
 
 def test_list_links_authenticated(client):
