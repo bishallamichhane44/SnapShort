@@ -58,13 +58,15 @@ jobs:
         run: sam build --use-container
 
       - name: Deploy to AWS Lambda
+        env:
+          SAM_SECRET_KEY: ${{ secrets.SECRET_KEY }}
+          SAM_DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          SAM_ARTIFACTS_BUCKET: ${{ secrets.SAM_ARTIFACTS_BUCKET }}
         run: |
           sam deploy \
             --no-confirm-changeset \
             --no-fail-on-empty-changeset \
             --stack-name snapshort-prod \
-            --s3-bucket ${{ secrets.SAM_ARTIFACTS_BUCKET }} \
-            --parameter-overrides \
-              SecretKey=${{ secrets.SECRET_KEY }} \
-              DatabaseUrl=${{ secrets.DATABASE_URL }} \
+            --s3-bucket "$SAM_ARTIFACTS_BUCKET" \
+            --parameter-overrides "SecretKey=$SAM_SECRET_KEY" "DatabaseUrl=$SAM_DATABASE_URL" \
             --capabilities CAPABILITY_IAM

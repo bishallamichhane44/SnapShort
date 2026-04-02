@@ -47,7 +47,7 @@ make test
 ## Deployment
 
 - **AWS**: See `docs/guide/aws_setup_guide.md` and `docs/guide/prod.md` (create S3 bucket, set GitHub Secrets, run `sam build --use-container` and `sam deploy`).
-- **CI**: Push to `main` runs tests and deploys when secrets are configured.
+- **CI**: Push to `main` runs tests and deploys when secrets are configured. 
 
 ## License
 
